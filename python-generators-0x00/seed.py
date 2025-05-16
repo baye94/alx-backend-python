@@ -9,7 +9,7 @@ def connect_db():
         connection = mysql.connector.connect(
             host="localhost",
             user="root",
-            password="your_mysql_password"  # remplace par ton mot de passe
+            password="password"  # remplace par ton mot de passe
         )
         return connection
     except mysql.connector.Error as err:
@@ -31,7 +31,7 @@ def connect_to_prodev():
         connection = mysql.connector.connect(
             host="localhost",
             user="root",
-            password="your_mysql_password",
+            password="password",
             database="ALX_prodev"
         )
         return connection
@@ -42,7 +42,7 @@ def connect_to_prodev():
 # ------------------ CREATE TABLE user_data ------------------ #
 def create_table(connection):
     create_table_query = """
-    CREATE TABLE IF NOT EXISTS user_data (
+    CREATE TABLE IF NOT EXISTS user (
         user_id CHAR(36) PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
         email VARCHAR(255) NOT NULL,
@@ -73,7 +73,7 @@ def insert_data(connection, csv_file):
 
                 # insert if not exists (assume user_id is unique)
                 cursor.execute("""
-                    INSERT IGNORE INTO user_data (user_id, name, email, age)
+                    INSERT IGNORE INTO user (user_id, name, email, age)
                     VALUES (%s, %s, %s, %s);
                 """, (user_id, name, email, age))
         connection.commit()
