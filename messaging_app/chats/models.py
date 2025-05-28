@@ -11,6 +11,7 @@ class User(AbstractUser):
     profile_picture = models.ImageField(upload_to='profiles/', blank=True, null=True)
     is_online = models.BooleanField(default=False)
     last_seen = models.DateTimeField(blank=True, null=True)
+    password = models.CharField(max_length=128, verbose_name='password')
 
     REQUIRED_FIELDS = ['email', 'first_name', 'last_name']
 
