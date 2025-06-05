@@ -1,0 +1,173 @@
+{
+    "info": {
+        "name": "Messaging App API",
+        "description": "Collection to test JWT Authentication and Messaging endpoints",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Obtain JWT Token",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"username\": \"your_username\",\n    \"password\": \"your_password\"\n}"
+                },
+                "url": {
+                    "raw": "{{base_url}}/api/token/",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "api",
+                        "token",
+                        ""
+                    ]
+                }
+            },
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "let jsonData = pm.response.json();",
+                            "pm.environment.set('token', jsonData.access);"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Create Conversation",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"participants\": [\n        1,\n        2\n    ]\n}"
+                },
+                "url": {
+                    "raw": "{{base_url}}/api/conversations/",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "api",
+                        "conversations",
+                        ""
+                    ]
+                }
+            }
+        },
+        {
+            "name": "Send Message",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"conversation\": 10,\n    \"content\": \"Hello!\"\n}"
+                },
+                "url": {
+                    "raw": "{{base_url}}/api/messages/",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "api",
+                        "messages",
+                        ""
+                    ]
+                }
+            }
+        },
+        {
+            "name": "Fetch Conversations",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": {
+                    "raw": "{{base_url}}/api/conversations/",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "api",
+                        "conversations",
+                        ""
+                    ]
+                }
+            }
+        },
+        {
+            "name": "Fetch Messages",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": {
+                    "raw": "{{base_url}}/api/messages/",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "api",
+                        "messages",
+                        ""
+                    ]
+                }
+            }
+        },
+        {
+            "name": "Unauthorized Access Test",
+            "request": {
+                "method": "GET",
+                "url": {
+                    "raw": "{{base_url}}/api/messages/",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "api",
+                        "messages",
+                        ""
+                    ]
+                }
+            }
+        }
+    ]
+}
