@@ -7,10 +7,22 @@ from .models import Message, Conversation
 from .serializers import MessageSerializer
 from .permissions import IsParticipantOfConversation
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.viewsets import ModelViewSet
+from .models import Message
+from .serializers import MessageSerializer
+from .permissions import IsParticipantOfConversation
+from rest_framework.permissions import IsAuthenticated
+from .filters import MessageFilter
+from django_filters.rest_framework import DjangoFilterBackend
+from .pagination import StandardResultsSetPagination
 
 class MessageViewSet(ModelViewSet):
     serializer_class = MessageSerializer
     permission_classes = [IsAuthenticated, IsParticipantOfConversation]
+    permission_classes = [IsAuthenticated, IsParticipantOfConversation]
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = MessageFilter
+    pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
         return Message.objects.filter(conversation__participants=self.request.user)
@@ -31,3 +43,7 @@ class MessageViewSet(ModelViewSet):
                             status=status.HTTP_403_FORBIDDEN)
 
         serializer.save(sender=self.request.user, conversation=conversation)
+
+
+    def get_queryset(self):
+        return Message.objects.filter(conversation__participants=self.request.user)
