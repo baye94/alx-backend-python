@@ -73,3 +73,26 @@ class OffensiveLanguageMiddleware:
         else:
             ip = request.META.get('REMOTE_ADDR')
         return ip
+
+class RolePermissionMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        # Appliquer le contrôle seulement pour des actions sensibles (ex: DELETE, PUT, PATCH)
+        if request.method in ["DELETE", "PUT", "PATCH"]:
+            user = request.user
+
+            if not user.is_authenticated:
+                return HttpResponseForbidden("⛔ Vous devez être connecté pour effectuer cette action.")
+
+            # Vérifie si l'utilisateur est admin ou a un rôle "moderator"
+            # - Superuser = admin
+            # - "moderator" = groupe ou champ personnalisé
+            is_admin = user.is_superuser
+            is_moderator = user.groups.filter(name="moderator").exists()
+
+            if not (is_admin or is_moderator):
+                return HttpResponseForbidden("⛔ Accès refusé : seuls les administrateurs ou modérateurs peuvent effectuer cette action.")
+
+        return self.get_response(request)
