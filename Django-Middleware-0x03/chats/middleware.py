@@ -79,16 +79,14 @@ class RolePermissionMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        # Appliquer le contrôle seulement pour des actions sensibles (ex: DELETE, PUT, PATCH)
-        if request.method in ["DELETE", "PUT", "PATCH"]:
+        # Actions critiques (modification/suppression)
+        if request.method in ['DELETE', 'PUT', 'PATCH']:
             user = request.user
 
             if not user.is_authenticated:
-                return HttpResponseForbidden("⛔ Vous devez être connecté pour effectuer cette action.")
+                return HttpResponseForbidden("⛔ Vous devez être authentifié.")
 
-            # Vérifie si l'utilisateur est admin ou a un rôle "moderator"
-            # - Superuser = admin
-            # - "moderator" = groupe ou champ personnalisé
+            # Autoriser seulement les superusers ou membres du groupe 'moderator'
             is_admin = user.is_superuser
             is_moderator = user.groups.filter(name="moderator").exists()
 
