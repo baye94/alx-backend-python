@@ -30,3 +30,8 @@ class MessageHistory(models.Model):
 
     def __str__(self):
         return f'Edit of message {self.message.id} at {self.edited_at}'
+
+# Example for Notification
+class Notification(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    message = models.ForeignKey('Message', on_delete=models.CASCADE)
