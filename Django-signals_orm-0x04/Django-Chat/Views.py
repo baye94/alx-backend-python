@@ -8,4 +8,4 @@ def delete_user(request):
     user = request.user
     logout(request)
     user.delete()  # Triggers post_delete signal
-    return redirect('home')  # Or any landing page after deletion
+    return redirect('home') 
