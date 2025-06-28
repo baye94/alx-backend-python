@@ -1,0 +1,5 @@
+# Command to apply the ingress configuration
+kubectl apply -f ingress.yaml
+
+# Optional: verify the ingress resource
+kubectl get ingress
