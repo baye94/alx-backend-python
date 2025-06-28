@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# Apply both deployments
+kubectl apply -f blue_deployment.yaml
+kubectl apply -f green_deployment.yaml
+
+# Apply service to point to green version
+kubectl apply -f kubeservice.yaml
+
+# Check logs for green deployment
+POD_NAME=$(kubectl get pods -l app=django,version=green -o jsonpath="{.items[0].metadata.name}")
+echo "Logs from green deployment pod: $POD_NAME"
+kubectl logs $POD_NAME
