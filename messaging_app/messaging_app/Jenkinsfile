@@ -2,46 +2,44 @@ pipeline {
     agent any
 
     environment {
-        VENV = "${WORKSPACE}/venv"
+        PYTHONUNBUFFERED = 1
     }
 
     stages {
-        stage('Clone Repository') {
+        stage('Checkout') {
             steps {
-                git credentialsId: 'github-credentials-id', url: 'https://github.com/<your-user>/alx-backend-python.git'
+                git branch: 'master',
+                    url: 'https://github.com/baye94/alx-backend-python.git'
             }
         }
 
-        stage('Setup Python Environment') {
+        stage('Install dependencies') {
             steps {
-                sh '''
-                    python3 -m venv $VENV
-                    source $VENV/bin/activate
-                    pip install --upgrade pip
-                    pip install -r messaging_app/requirements.txt
-                '''
+                dir('messaging_app') {
+                    sh 'python3 -m venv venv'
+                    sh '. venv/bin/activate && pip3 install -r requirements.txt'
+                }
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh '''
-                    source $VENV/bin/activate
-                    pytest messaging_app/tests/ --junitxml=report.xml
-                '''
+                dir('messaging_app') {
+                    sh '. venv/bin/activate && pytest --junitxml=report.xml'
+                }
             }
         }
 
-        stage('Publish Test Report') {
+        stage('Test Report') {
             steps {
-                junit 'report.xml'
+                junit 'messaging_app/report.xml'
             }
         }
     }
 
     post {
         always {
-            echo 'Pipeline terminé.'
+            cleanWs()
         }
     }
 }
