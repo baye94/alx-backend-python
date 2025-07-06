@@ -1,63 +1,49 @@
 pipeline {
     agent any
 
+    environment {
+        PYTHON_VERSION = '3.10'
+    }
+
     stages {
-        stage('Checkout Source Code') {
+        stage('Checkout') {
             steps {
-                // Assuming the repository URL and credentials are configured in the Jenkins job
-                // The 'git' step here pulls the entire repository.
-                // If the Jenkins job is configured to use 'Pipeline script from SCM',
-                // Jenkins automatically performs a checkout.
-                // You might not need an explicit `git` step here if the Jenkins job handles it,
-                // but it's good for clarity or if you need specific checkout options.
-                script {
-                    checkout scm
-                }
+                git credentialsId: 'github-creds', url: 'https://github.com/YOUR_USERNAME/alx-backend-python.git'
+            }
+        }
+
+        stage('Setup Python') {
+            steps {
+                usePython version: "${env.PYTHON_VERSION}", pythonInstallationName: "Python-${env.PYTHON_VERSION}"
             }
         }
 
         stage('Install Dependencies') {
             steps {
-                // Ensure to navigate into the messaging_app directory
                 dir('messaging_app') {
-                    sh 'python3 -m venv venv' // Create a virtual environment
-                    sh '. venv/bin/activate && pip install -r requirements.txt' // Activate and install dependencies
+                    sh 'pip install -r requirements.txt'
                 }
             }
         }
 
-        stage('Run Tests with Pytest') {
+        stage('Run Tests') {
             steps {
                 dir('messaging_app') {
-                    // Activate the virtual environment and run pytest
-                    // --junitxml=report.xml: Generates a JUnit XML report (standard for Jenkins)
-                    // --html=report.html: Generates an HTML report (optional, requires pytest-html)
-                    sh '. venv/bin/activate && pytest --junitxml=test-results.xml --html=test-report.html'
+                    sh 'pytest --junitxml=report.xml'
                 }
             }
         }
 
-        stage('Generate Test Report') {
+        stage('Publish Test Report') {
             steps {
-                dir('messaging_app') {
-                    // Publish JUnit test results
-                    // This will parse the test-results.xml and display results in Jenkins UI
-                    junit 'test-results.xml'
-
-                    // Archive the HTML report (optional, if you want to view it later)
-                    archiveArtifacts artifacts: 'test-report.html', fingerprint: true
-                }
+                junit 'messaging_app/report.xml'
             }
         }
     }
 
     post {
         always {
-            // Clean up workspace after build, good for subsequent builds
-            cleanWs()
-        }
-        success {
-            echo 'Pipeline finished successfully!'
+            echo 'Pipeline finished.'
         }
         failure {
             echo 'Pipeline failed!'
