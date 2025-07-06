@@ -2,53 +2,44 @@ pipeline {
     agent any
 
     environment {
-        PYTHON_VERSION = '3.10'
+        // Chemin du dossier contenant l'app de messagerie
+        APP_DIR = "messaging_app"
     }
 
     stages {
-        stage('Git Checkout') {
+        stage('Clone Repository') {
             steps {
-                script {
-                    // Affiche la branche actuelle
-                    sh 'git branch'
-                }
-                git credentialsId: 'github-creds', url: 'https://github.com/YOUR_USERNAME/alx-backend-python.git'
-            }
-        }
-
-        stage('Setup Python') {
-            steps {
-                usePython version: "${env.PYTHON_VERSION}", pythonInstallationName: "Python-${env.PYTHON_VERSION}"
+                git branch: 'main',
+                    url: 'https://github.com/<YOUR_USERNAME>/alx-backend-python.git',
+                    credentialsId: 'github-credentials-id'
             }
         }
 
         stage('Install Dependencies') {
             steps {
-                dir('messaging_app') {
-                    // Utilise pip3 comme exigé
-                    sh 'pip3 install -r requirements.txt'
-                }
+                sh "pip3 install -r ${APP_DIR}/requirements.txt"
             }
         }
 
         stage('Run Tests') {
             steps {
-                dir('messaging_app') {
-                    sh 'pytest --junitxml=report.xml'
-                }
+                sh "pytest ${APP_DIR} --junitxml=${APP_DIR}/report.xml"
             }
         }
 
         stage('Publish Report') {
             steps {
-                junit 'messaging_app/report.xml'
+                junit "${APP_DIR}/report.xml"
             }
         }
     }
 
     post {
         always {
-            echo 'Pipeline finished.'
+            echo "Pipeline finished."
+        }
+        failure {
+            echo "Tests failed."
         }
     }
 }
