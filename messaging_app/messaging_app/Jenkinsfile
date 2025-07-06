@@ -2,22 +2,26 @@ pipeline {
     agent any
 
     environment {
-        PYTHONUNBUFFERED = 1
+        PYTHON_VERSION = '3.10'
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'master',
-                    url: 'https://github.com/baye94/alx-backend-python.git'
+                git credentialsId: 'github-creds', url: 'https://github.com/YOUR_USERNAME/alx-backend-python.git'
             }
         }
 
-        stage('Install dependencies') {
+        stage('Setup Python') {
+            steps {
+                usePython version: "${env.PYTHON_VERSION}", pythonInstallationName: "Python-${env.PYTHON_VERSION}"
+            }
+        }
+
+        stage('Install Dependencies') {
             steps {
                 dir('messaging_app') {
-                    sh 'python3 -m venv venv'
-                    sh '. venv/bin/activate && pip3 install -r requirements.txt'
+                    sh 'pip install -r requirements.txt'
                 }
             }
         }
@@ -25,12 +29,12 @@ pipeline {
         stage('Run Tests') {
             steps {
                 dir('messaging_app') {
-                    sh '. venv/bin/activate && pytest --junitxml=report.xml'
+                    sh 'pytest --junitxml=report.xml'
                 }
             }
         }
 
-        stage('Test Report') {
+        stage('Publish Test Report') {
             steps {
                 junit 'messaging_app/report.xml'
             }
@@ -39,7 +43,10 @@ pipeline {
 
     post {
         always {
-            cleanWs()
+            echo 'Pipeline finished.'
+        }
+        failure {
+            echo 'Pipeline failed!'
         }
     }
 }
