@@ -6,8 +6,12 @@ pipeline {
     }
 
     stages {
-        stage('Checkout') {
+        stage('Git Checkout') {
             steps {
+                script {
+                    // Affiche la branche actuelle
+                    sh 'git branch'
+                }
                 git credentialsId: 'github-creds', url: 'https://github.com/YOUR_USERNAME/alx-backend-python.git'
             }
         }
@@ -21,7 +25,8 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 dir('messaging_app') {
-                    sh 'pip install -r requirements.txt'
+                    // Utilise pip3 comme exigé
+                    sh 'pip3 install -r requirements.txt'
                 }
             }
         }
@@ -34,7 +39,7 @@ pipeline {
             }
         }
 
-        stage('Publish Test Report') {
+        stage('Publish Report') {
             steps {
                 junit 'messaging_app/report.xml'
             }
@@ -44,9 +49,6 @@ pipeline {
     post {
         always {
             echo 'Pipeline finished.'
-        }
-        failure {
-            echo 'Pipeline failed!'
         }
     }
 }
